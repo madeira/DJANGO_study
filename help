@@ -1,0 +1,150 @@
+установка Django
+cd projects/
+projects$ cd random/
+/projects/random$ virtualenv env
+madeira@madeira:~/projects/random$ . env/bin/activate
+(env)madeira@madeira:~/projects/random$ pip install Django
+
+для того что б начать проект на Django необходимо выполнить инициализацию проекта. Это можно сделать 2 путями
+1. django-admin.py startproject mysite. где mysite это название вашего проекта
+2. либо можно в ручную создать следующие файлы(в первом случае эти файлы создаются автоматически):
+    __init__.py
+    manage.py
+    settings.py
+    urls.py
+
+__init__.py: пустой файл, который говорит Python, что этот каталог должен рассматриваться как Python пакет.
+
+manage.py: Консольная утилита, которая позволяет взаимодействовать с этим проектом Django.
+
+settings.py: Настройки / Конфигурация для этого проекта Django.
+
+urls.py: URL деклараций для этого проекта Django, "таблица контента" вашего Django сайта.
+
+
+$ python manage.py runserver
+Validating models...
+
+0 errors found
+Django version 1.3, using settings 'mysite.settings'
+Development server is running at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+если завершить выхож с CONTROL-Z при следующем запуске проекта будет вызвана ошибка Error: That port is already in use.
+для того что б изменить порт запуска нужно его указать во время запуска.
+
+$ python manage.py runserver 8081
+Validating models...
+
+0 errors found
+Django version 1.3, using settings 'mysite.settings'
+Development server is running at http://127.0.0.1:8081/
+Quit the server with CONTROL-C.
+
+можно заметить что запуск сервера происходит локально и используется только для разработки.
+
+Теперь, когда сервер запущен, можно перейти по ссылке http://127.0.0.1:8000/ с помощью веб-браузера.
+Вы увидите "Добро пожаловать в Django". Получилось!
+
+Теперь нужно отредактировать settings.py. Это Python модуль с переменными представляющий Django настройки.
+Необходимо изменить следующие ключи в пункте "default" БАЗ ДАННЫХ в соответствии с вашими настройками базы данных.
+
+ENGINE -- Выбираем бэкенд для своей базы данных 'django.db.backends.postgresql_psycopg2', 'django.db.backends.mysql' or 'django.db.backends.sqlite3'.
+
+NAME -- Имя вашей базы данных. При использовании с sqlite3 база данных будет создана в проекте, при использовании других баз необходимо заранее создать БД для вашего проекта.
+
+USER -- БД юзер (not used for SQLite).
+
+PASSWORD -- БД пароль (not used for SQLite).
+
+HOST -- если БД пользуется на той же машине что и проект, указывать не надо.
+
+необходимо обратить внимание на перееменную INSTALLED_APPS в settings.py в нижней части файла. Эта переменная содержит имена всех Django приложения, которые активизируются. Приложения могут быть использованы в нескольких проектах, и вы можете упаковать и распространять их для использования другими в своих проектах.
+
+По умолчанию,   содержит следующие приложения, которые поставляются с Django:
+
+     django.contrib.auth - систему аутентификации.
+     django.contrib.contenttypes - основа для типов контента.
+		В основе приложения ContentTypes является ContentType модель, которая живет в django.contrib.contenttypes.models.ContentType. Экземпляры ContentType представляют и хранят информацию о 		моделях установлены в вашем проекте, и новые экземпляры ContentType создаются автоматически, когда новые модели будут установлены.
+
+		Экземпляры ContentType это методы для возвращения классов модели которые они представляют, и для запросов объектов из этих моделей. ContentType также имеет пользовательский диспетчер, который 		добавляет методы для работы с ContentType и для получения экземпляров ContentType для конкретной модели.
+
+		Отношения между вашими моделями и ContentType также может быть использован для разрешения "общих" отношения между экземпляр одного из ваших моделей и экземпляров любой модели которая у вас 			установлена.
+
+     django.contrib.sessions - сессии структуры.
+		Django предоставляет полную поддержку для анонимных сессий.Сессии позволяют хранить и извлекать произвольные данные для каждого сайта посетителю. В ней хранятся данные на стороне 			сервера и тезисы отправки и получения Cookies. Cookies содержат идентификатор сессии - не сами данные.
+
+     django.contrib.sites - систему для управления несколькими сайтами с одной установки Django	
+     django.contrib.messages - основа обмена сообщениями.
+     django.contrib.staticfiles - систему для управления статических файлов.
+
+/random/mysite$ python manage.py syncdb
+     создаются таблицы в БД для установленных в INSTALLED_APPS апп.
+   
+таблицы созданы, далее начинаем создавать приложения (арр)
+можно опять же сделать это 2мя способами, создать каталог и файлы в нем либо воспоьзоватся командой python manage.py startapp polls
+polls/
+    __init__.py
+    models.py
+    tests.py
+    views.py
+
+модели - по сути, ваш формат базы данных, с дополнительными метаданными.
+модель єто единый источник информации о ваших данных. Она состоит из полей и типов данных которые вы храните. Django следует "сухому принципу", целью которого является определение модели данных в одном месте и автомытически получать данные из них.
+Вот так создаются модели.
+
+from django.db import models
+
+class Poll(models.Model):
+    question = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+class Choice(models.Model):
+    poll = models.ForeignKey(Poll)
+    choice = models.CharField(max_length=200)
+    votes = models.IntegerField()
+
+каждая модель представлена классом сабкласа django.db.models.Model. Каждая модель имеет ряд переменных класса, которые представляют собой поля БД в модели.
+
+далее необходимо зарегистрировать наше приложение, для того что б Django его увидела.
+идем в settings.py и добовляем в INSTALLED_APPS наше приложение.
+теперь нам необходимо создать таблицы в БД для нашего приложения, т.к. наши классы в модели это таблицы данных и что б их можно было использовать их нужно инициализировать.
+приступим
+
+/random/mysite$ python manage.py sql polls
+
+BEGIN;
+CREATE TABLE "polls_poll" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "question" varchar(200) NOT NULL,
+    "pub_date" datetime NOT NULL
+)
+;
+CREATE TABLE "polls_choice" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "poll_id" integer NOT NULL REFERENCES "polls_poll" ("id"),
+    "choice" varchar(200) NOT NULL,
+    "votes" integer NOT NULL
+)
+;
+COMMIT;
+Обратите внимание на следующее:
+
+    Точный вывод будет варьироваться в зависимости от используемой базы данных.
+    Имена таблиц автоматически создаются путем объединения имя приложения (polls) и строчные название модели - Poll и Choice. (Вы можете переопределить это поведение.)
+    Первичные ключи (ID) добавляются автоматически. (Вы можете изменить это, также.)
+       В соответствии с соглашением, Django добавляет "_id" к внешнему ключу имя поля. Да, вы можете изменить это, как нравится.
+
+    python manage.py validate -- проверка на наличие ошибок в конструкции моделей.
+    python manage.py sqlcustom polls -- вывод любых пользовательские заявления SQL (например, таблица изменений или ограничений), которые определены для приложения.
+    python manage.py sqlclear polls -- Outputs the necessary DROP TABLE statements for this app, according to which tables already exist in your database (if any).
+    python manage.py sqlindexes polls -- Outputs the CREATE INDEX statements for this app.
+    python manage.py sqlall polls -- A combination of all the SQL from the sql, sqlcustom, and sqlindexes commands.
+
+Глядя на выходы из этих команд вы можете понять что происход в нутри.
+
+теперь для создания таблиц БД запускаем 
+/random/mysite$ python manage.py syncdb
+
+Команда syncdb запускает SQL от "sqlall" в вашей базе данных для всех приложений в INSTALLED_APPS, которые еще не существует в базе данных. Это создает все таблицы, исходные данные и индексы для любого приложения которые вы добавили в свой проект с последнего запуска syncdb. syncdb может быть вызвана так часто, как нравится, и команда будет работать только тогда когда нужно создать таблицы, которые не существуют.
+
